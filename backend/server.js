@@ -153,4 +153,58 @@ app.post('/api/invoices', async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+}
+// --- KSEF TEST - KROK 1: POBRANIE WYZWANIA (CHALLENGE) ---
+app.put('/api/invoices/:id/ksef', async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (!invoice) {
+      return res.status(404).json({ message: 'Nie znaleziono faktury' });
+    }
+
+    // Prawdziwy adres środowiska testowego Ministerstwa Finansów
+    const KSEF_TEST_URL = 'https://ksef-test.mf.gov.pl/api/online/Session/AuthorisationChallenge';
+
+    // NIP odczytany z Twojego Tokena
+    const myCompanyNip = "8882692150";
+
+    const challengePayload = {
+      contextIdentifier: {
+        type: "onip",
+        identifier: myCompanyNip
+      }
+    };
+
+    console.log('➡️ Rozpoczynam komunikację z KSeF Test dla NIP:', myCompanyNip);
+
+    // Zapytanie HTTP do Ministerstwa Finansów
+    const ksefResponse = await fetch(KSEF_TEST_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(challengePayload)
+    });
+
+    const ksefData = await ksefResponse.json();
+
+    if (!ksefResponse.ok) {
+      console.error('❌ KSeF odrzucił zapytanie:', ksefData);
+      return res.status(ksefResponse.status).json({
+        message: 'Błąd KSeF: ' + (ksefData.exception?.exceptionDetailList?.[0]?.exceptionMessage || 'Odmowa dostępu')
+      });
+    }
+
+    console.log('✅ KSeF odpowiedział! Otrzymano Challenge:', ksefData.challenge);
+
+    // Na tym etapie zatrzymujemy się i zwracamy wynik do Angulara, by pokazać, że MF działa!
+    res.json({
+      message: 'Nawiązano połączenie z KSeF (Krok 1 - Sukces)! Zobacz konsolę serwera.',
+      challenge: ksefData.challenge
+    });
+
+  } catch (error) {
+    console.error('❌ Błąd krytyczny komunikacji z MF:', error);
+    res.status(500).json({ message: 'Błąd serwera: ' + error.message });
+  }
 });

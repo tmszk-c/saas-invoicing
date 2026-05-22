@@ -60,12 +60,12 @@
               </span>
           </td>
 
-          <td class="p-4 text-right space-x-2">
-            <button class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 py-1 rounded-md text-sm transition">
-              Szczegóły
+          <td class="p-4 text-right space-x-2 whitespace-nowrap">
+            <button (click)="sendToKsef(invoice._id)" class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-md text-sm font-medium transition shadow-sm mr-2">
+              KSeF Test (Challenge)
             </button>
-            <button (click)="downloadPdf(invoice.number)" class="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1 rounded-md text-sm transition">
-              PDF
+            <button (click)="downloadPdf(invoice.number)" class="text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-md text-sm font-medium transition shadow-sm">
+              Pobierz PDF
             </button>
           </td>
         </tr>

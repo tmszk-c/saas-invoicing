@@ -43,7 +43,21 @@ export class DocumentArchiveComponent implements OnInit {
       }, 300);
     }
   }
+// Wywołanie prawdziwego połączenia z KSeF (Krok 1)
+  sendToKsef(invoiceId: string | undefined) {
+    if (!invoiceId) return;
 
+    if (confirm('Czy połączyć się z Ministerstwem Finansów (KSeF Test)?')) {
+      this.http.put(`http://localhost:3000/api/invoices/${invoiceId}/ksef`, {})
+        .subscribe({
+          next: (response: any) => {
+            alert(response.message);
+            // Nie odświeżamy jeszcze statusu, bo to dopiero Krok 1
+          },
+          error: (err) => alert('Błąd połączenia z KSeF: ' + err.message)
+        });
+    }
+  }
   loadInvoices() {
     this.isLoading = true;
     this.errorMessage = '';

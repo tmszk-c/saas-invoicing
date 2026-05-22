@@ -63,19 +63,36 @@ export class ClientDirectoryComponent implements OnInit {
       });
   }
 
-  // NOWOŚĆ: Prawdziwe zapisywanie formularza
   saveClient() {
     if (!this.newClient.name || !this.newClient.nip || !this.newClient.email) {
       alert('Wypełnij wszystkie pola formularza!');
       return;
     }
 
+    // 1. Sprawdzanie E-maila (musi mieć @ i kropkę)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.newClient.email)) {
+      alert('Wprowadź poprawny adres e-mail (np. jan@kowalski.pl)!');
+      return;
+    }
+
+    // 2. Sprawdzanie NIPu (usuwamy myślniki i spacje, po czym sprawdzamy czy zostało 10 cyfr)
+    const cleanNip = this.newClient.nip.replace(/[\s-]/g, '');
+    const nipRegex = /^[0-9]{10}$/;
+    if (!nipRegex.test(cleanNip)) {
+      alert('NIP musi składać się z dokładnie 10 cyfr!');
+      return;
+    }
+
+    // Nadpisujemy NIP czystą wersją
+    this.newClient.nip = cleanNip;
+
     this.http.post('http://localhost:3000/api/clients', this.newClient)
       .subscribe({
         next: () => {
           this.loadClients();
-          this.showAddForm = false; // Ukrywa formularz po sukcesie
-          this.newClient = { name: '', nip: '', email: '', status: 'active' }; // Czyści pola
+          this.showAddForm = false;
+          this.newClient = { name: '', nip: '', email: '', status: 'active' };
         },
         error: (err) => console.error('Błąd dodawania klienta:', err)
       });

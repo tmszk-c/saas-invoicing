@@ -2,11 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const axios = require('axios');
 
 const Client = require('./models/Client');
 const Product = require('./models/Product');
 const Invoice = require('./models/Invoice');
-const User = require('./models/User'); // Model użytkownika
+const User = require('./models/User');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,21 +15,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Zabezpieczenie przed nieskończonym ładowaniem i zawieszaniem bazy
 mongoose.set('bufferCommands', false);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ Połączono z bazą MongoDB w chmurze!');
-
-    // Serwer startuje DOPIERO gdy baza jest gotowa
     app.listen(PORT, () => {
       console.log(`🚀 Serwer Node.js nasłuchuje na http://localhost:${PORT}`);
     });
   })
   .catch((err) => console.error('❌ Błąd połączenia z MongoDB:', err));
 
-// --- STATYSTYKI (PULPIT) ---
+// --- STATYSTYKI ---
 app.get('/api/stats', async (req, res) => {
   try {
     const clientsCount = await Client.countDocuments();
@@ -45,7 +43,7 @@ app.get('/api/stats', async (req, res) => {
       pending: pendingInvoices
     });
   } catch (error) {
-    res.status(500).json({ message: "Baza danych w chmurze jeszcze się uruchamia. Spróbuj za chwilę." });
+    res.status(500).json({ message: "Baza danych w chmurze jeszcze się uruchamia." });
   }
 });
 
@@ -83,13 +81,11 @@ app.post('/api/login', async (req, res) => {
 // --- KLIENCI ---
 app.get('/api/clients', async (req, res) => {
   try {
-    const clients = await Client.find();
-    res.json(clients);
+    res.json(await Client.find());
   } catch (error) {
-    res.status(500).json({ message: "Problem z połączeniem cloud. Spróbuj ponownie." });
+    res.status(500).json({ message: "Problem z połączeniem cloud." });
   }
 });
-
 app.post('/api/clients', async (req, res) => {
   try {
     const newClient = new Client(req.body);
@@ -98,7 +94,6 @@ app.post('/api/clients', async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
-
 app.delete('/api/clients/:id', async (req, res) => {
   try {
     await Client.findByIdAndDelete(req.params.id);
@@ -111,13 +106,11 @@ app.delete('/api/clients/:id', async (req, res) => {
 // --- PRODUKTY ---
 app.get('/api/products', async (req, res) => {
   try {
-    const products = await Product.find();
-    res.json(products);
+    res.json(await Product.find());
   } catch (error) {
-    res.status(500).json({ message: "Problem z połączeniem cloud. Spróbuj ponownie." });
+    res.status(500).json({ message: "Problem z połączeniem cloud." });
   }
 });
-
 app.post('/api/products', async (req, res) => {
   try {
     const newProduct = new Product(req.body);
@@ -126,7 +119,6 @@ app.post('/api/products', async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
-
 app.delete('/api/products/:id', async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
@@ -139,13 +131,11 @@ app.delete('/api/products/:id', async (req, res) => {
 // --- FAKTURY ---
 app.get('/api/invoices', async (req, res) => {
   try {
-    const invoices = await Invoice.find().sort({ createdAt: -1 });
-    res.json(invoices);
+    res.json(await Invoice.find().sort({ createdAt: -1 }));
   } catch (error) {
-    res.status(500).json({ message: "Problem z połączeniem cloud. Spróbuj ponownie." });
+    res.status(500).json({ message: "Problem z połączeniem cloud." });
   }
 });
-
 app.post('/api/invoices', async (req, res) => {
   try {
     const newInvoice = new Invoice(req.body);
@@ -153,8 +143,12 @@ app.post('/api/invoices', async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-}
-// --- KSEF TEST - KROK 1: POBRANIE WYZWANIA (CHALLENGE) ---
+});
+
+// ========================================================
+// --- KSEF 2.0 TEST - KROK 1: POBRANIE WYZWANIA (CHALLENGE) --
+// ========================================================
+
 app.put('/api/invoices/:id/ksef', async (req, res) => {
   try {
     const invoice = await Invoice.findById(req.params.id);
@@ -162,49 +156,42 @@ app.put('/api/invoices/:id/ksef', async (req, res) => {
       return res.status(404).json({ message: 'Nie znaleziono faktury' });
     }
 
-    // Prawdziwy adres środowiska testowego Ministerstwa Finansów
-    const KSEF_TEST_URL = 'https://ksef-test.mf.gov.pl/api/online/Session/AuthorisationChallenge';
+    // 🔥 AKTUALIZACJA 2026: Nowy adres serwera KSeF 2.0
+    const KSEF_TEST_URL = 'https://api-test.ksef.mf.gov.pl/v2/auth/challenge';
 
-    // NIP odczytany z Twojego Tokena
-    const myCompanyNip = "8882692150";
+    console.log('\n➡️ Pukam do nowych drzwi KSeF 2.0 Test...');
 
-    const challengePayload = {
-      contextIdentifier: {
-        type: "onip",
-        identifier: myCompanyNip
-      }
-    };
-
-    console.log('➡️ Rozpoczynam komunikację z KSeF Test dla NIP:', myCompanyNip);
-
-    // Zapytanie HTTP do Ministerstwa Finansów
-    const ksefResponse = await fetch(KSEF_TEST_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(challengePayload)
-    });
-
-    const ksefData = await ksefResponse.json();
-
-    if (!ksefResponse.ok) {
-      console.error('❌ KSeF odrzucił zapytanie:', ksefData);
-      return res.status(ksefResponse.status).json({
-        message: 'Błąd KSeF: ' + (ksefData.exception?.exceptionDetailList?.[0]?.exceptionMessage || 'Odmowa dostępu')
+    try {
+      // W nowym API wywołujemy endpoint bez NIPu w ciele, dostaniemy czysty Challenge
+      const ksefResponse = await axios.post(KSEF_TEST_URL, {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Error-Format': 'problem-details' // Wymóg specyfikacji API 2.0
+        }
       });
+
+      console.log('✅ KSeF 2.0 odpowiedział! Otrzymano Challenge:', ksefResponse.data.challenge);
+
+      res.json({
+        message: 'Nawiązano połączenie z KSeF 2.0 (Krok 1 - Sukces)! Zobacz konsolę serwera.',
+        challenge: ksefResponse.data.challenge
+      });
+
+    } catch (ksefError) {
+      // Tym razem, jeśli MF nam odmówi, to otrzymamy cywilizowany powód błędu
+      console.error('❌ Błąd odpowiedzi od serwerów MF:', ksefError.message);
+
+      if (ksefError.response && ksefError.response.data) {
+        console.error('Szczegóły błędu MF:', ksefError.response.data);
+      }
+
+      const errorMsg = ksefError.response?.data?.title || ksefError.response?.data?.message || ksefError.message;
+      return res.status(ksefError.response?.status || 500).json({ message: 'Błąd KSeF: ' + errorMsg });
     }
 
-    console.log('✅ KSeF odpowiedział! Otrzymano Challenge:', ksefData.challenge);
-
-    // Na tym etapie zatrzymujemy się i zwracamy wynik do Angulara, by pokazać, że MF działa!
-    res.json({
-      message: 'Nawiązano połączenie z KSeF (Krok 1 - Sukces)! Zobacz konsolę serwera.',
-      challenge: ksefData.challenge
-    });
-
   } catch (error) {
-    console.error('❌ Błąd krytyczny komunikacji z MF:', error);
+    console.error('❌ Błąd wewnętrzny serwera:', error);
     res.status(500).json({ message: 'Błąd serwera: ' + error.message });
   }
 });

@@ -1,0 +1,92 @@
+<div class="space-y-6 max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="mb-2 text-3xl font-semibold text-gray-900">Produkty i Usługi</h1>
+      <p class="text-gray-600">Zarządzaj swoim katalogiem, cennikami i stawkami VAT</p>
+    </div>
+    <button (click)="showAddForm = !showAddForm" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition shadow-sm font-medium">
+      {{ showAddForm ? 'Anuluj dodawanie' : '+ Dodaj produkt' }}
+    </button>
+  </div>
+
+  <div *ngIf="showAddForm" class="bg-white p-6 border rounded-xl shadow-sm animate-fade-in border-blue-200">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">Wprowadź nowy element do cennika</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <input type="text" placeholder="Nazwa usługi/produktu" [(ngModel)]="newProduct.name" class="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+      <input type="text" placeholder="Kod (SKU)" [(ngModel)]="newProduct.sku" class="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+      <div class="relative">
+        <input type="number" placeholder="Cena Netto" [(ngModel)]="newProduct.priceNetto" class="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none pr-8">
+        <span class="absolute right-3 top-2.5 text-gray-500">zł</span>
+      </div>
+      <select [(ngModel)]="newProduct.vatRate" class="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+        <option [ngValue]="23">VAT 23%</option>
+        <option [ngValue]="8">VAT 8%</option>
+        <option [ngValue]="5">VAT 5%</option>
+        <option [ngValue]="0">VAT 0% (ZW)</option>
+      </select>
+    </div>
+    <div class="mt-4">
+      <button (click)="saveProduct()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 font-medium shadow-sm transition">
+        Zapisz w katalogu
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white p-4 border rounded-xl shadow-sm">
+    <input type="text" placeholder="Wyszukaj po nazwie lub kodzie SKU..." [(ngModel)]="searchQuery" class="w-full sm:w-1/2 border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"/>
+  </div>
+
+  <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl shadow-sm text-center">
+    ⚠️ {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading && !errorMessage" class="bg-white border rounded-xl shadow-sm p-6 space-y-4 animate-pulse">
+    <div class="h-6 bg-gray-200 rounded w-1/4"></div>
+    <div class="space-y-3 pt-4">
+      <div class="h-10 bg-gray-100 rounded" *ngFor="let i of [1,2,3]"></div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage" class="bg-white border rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+        <tr class="bg-gray-100/50 text-gray-600 border-b">
+          <th class="p-4 font-medium">Kod (SKU)</th>
+          <th class="p-4 font-medium">Nazwa usługi/produktu</th>
+          <th class="p-4 font-medium text-right">Cena Netto</th>
+          <th class="p-4 font-medium text-center">Stawka VAT</th>
+          <th class="p-4 font-medium text-right">Cena Brutto</th>
+          <th class="p-4"></th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let product of filteredProducts" class="hover:bg-gray-50/50 transition">
+          <td class="p-4 text-gray-500 font-mono text-sm">{{ product.sku }}</td>
+          <td class="p-4 font-medium text-gray-900">{{ product.name }}</td>
+          <td class="p-4 text-right">{{ product.priceNetto.toFixed(2) }} zł</td>
+          <td class="p-4 text-center">
+              <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">
+                {{ product.vatRate }}%
+              </span>
+          </td>
+          <td class="p-4 text-right font-semibold text-gray-800">
+            {{ (product.priceNetto * (1 + product.vatRate / 100)).toFixed(2) }} zł
+          </td>
+          <td class="p-4 text-right">
+            <button (click)="deleteProduct(product._id)" class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-md text-sm transition">
+              Usuń
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredProducts.length === 0">
+          <td colspan="6" class="p-8 text-center text-gray-500">
+            Brak produktów w bazie.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

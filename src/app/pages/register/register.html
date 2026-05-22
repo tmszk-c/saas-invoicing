@@ -1,0 +1,59 @@
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center items-center gap-3">
+      <div class="w-12 h-12 bg-blue-900 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">
+        IH
+      </div>
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      Załóż nowe konto
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Masz już konto?
+      <a routerLink="/login" class="font-medium text-blue-600 hover:text-blue-500 transition">
+        Zaloguj się tutaj
+      </a>
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-gray-100">
+      <form class="space-y-5" (ngSubmit)="onRegister()">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Nazwa firmy</label>
+          <div class="mt-1">
+            <input type="text" required [(ngModel)]="companyName" name="companyName" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Numer NIP</label>
+          <div class="mt-1">
+            <input type="text" required [(ngModel)]="nip" name="nip" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Adres e-mail</label>
+          <div class="mt-1">
+            <input type="email" required [(ngModel)]="email" name="email" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Hasło</label>
+          <div class="mt-1">
+            <input type="password" required [(ngModel)]="password" name="password" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition">
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+            Zarejestruj się
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

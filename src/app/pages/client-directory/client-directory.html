@@ -1,0 +1,75 @@
+<div class="space-y-6 max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="mb-2 text-3xl font-semibold text-gray-900">Baza klientów</h1>
+      <p class="text-gray-600">Zarządzaj informacjami o klientach i kontaktami</p>
+    </div>
+    <button (click)="showAddForm = !showAddForm" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition shadow-sm font-medium">
+      {{ showAddForm ? 'Anuluj dodawanie' : '+ Dodaj klienta' }}
+    </button>
+  </div>
+
+  <div *ngIf="showAddForm" class="bg-white p-6 border rounded-xl shadow-sm animate-fade-in border-blue-200">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">Wprowadź dane nowego klienta</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <input type="text" placeholder="Nazwa firmy" [(ngModel)]="newClient.name" class="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+      <input type="text" placeholder="NIP" [(ngModel)]="newClient.nip" class="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+      <input type="email" placeholder="E-mail" [(ngModel)]="newClient.email" class="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+      <select [(ngModel)]="newClient.status" class="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+        <option value="active">Aktywny</option>
+        <option value="inactive">Nieaktywny</option>
+      </select>
+    </div>
+    <div class="mt-4">
+      <button (click)="saveClient()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 font-medium shadow-sm transition">
+        Zapisz klienta w bazie
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white p-4 border rounded-xl shadow-sm">
+    <div class="flex gap-4">
+      <input type="text" placeholder="Wyszukaj po nazwie lub NIP..." [(ngModel)]="searchQuery" class="border border-gray-300 rounded-md px-3 py-2 flex-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
+      <select [(ngModel)]="filterStatus" class="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        <option value="all">Wszyscy</option>
+        <option value="active">Aktywni</option>
+        <option value="inactive">Nieaktywni</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl shadow-sm text-center">
+    ⚠️ {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading && !errorMessage" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div *ngFor="let i of [1,2,3,4]" class="bg-white p-6 border rounded-xl shadow-sm animate-pulse space-y-4">
+      <div class="h-5 bg-gray-200 rounded w-2/3"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+      <div class="h-8 bg-gray-100 rounded w-full mt-4"></div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div *ngFor="let client of filteredClients" class="bg-white p-6 border rounded-xl shadow-sm hover:shadow-md transition">
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">{{ client.name }}</h3>
+          <p class="text-gray-500 text-sm mt-1">NIP: {{ client.nip }} | {{ client.email }}</p>
+        </div>
+        <span [ngClass]="client.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 text-xs rounded-md font-medium">
+          {{ client.status === 'active' ? 'Aktywny' : 'Nieaktywny' }}
+        </span>
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button (click)="deleteClient(client._id)" class="text-red-600 hover:bg-red-50 px-3 py-1 rounded-md text-sm transition">
+          Usuń
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && filteredClients.length === 0" class="text-center py-12 bg-white border rounded-xl shadow-sm">
+    <p class="text-gray-500">Brak klientów w bazie. Kliknij przycisk powyżej, aby dodać pierwszego!</p>
+  </div>
+</div>

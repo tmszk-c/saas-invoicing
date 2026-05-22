@@ -1,0 +1,93 @@
+<div class="space-y-6 max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900">Nowa Faktura</h1>
+    <p class="text-gray-500 mt-1">Wystaw dokument i prześlij go do systemu KSeF</p>
+  </div>
+
+  <div *ngIf="errors.length > 0" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-sm">
+    <div class="flex items-center gap-2 font-bold mb-1">
+      <span class="text-xl">⚠️</span> Błąd walidacji:
+    </div>
+    <ul class="list-disc ml-8 text-sm">
+      <li *ngFor="let err of errors">{{ err }}</li>
+    </ul>
+  </div>
+
+  <div class="bg-white p-6 border rounded-xl shadow-sm space-y-6">
+    <h2 class="text-xl font-semibold border-b pb-2">Dane dokumentu</h2>
+
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Nabywca *</label>
+      <select
+        [(ngModel)]="selectedClientId"
+        class="w-full border border-gray-300 rounded-md px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+        <option value="" disabled selected>Wyszukaj klienta w bazie...</option>
+        <option *ngFor="let client of clients" [value]="client._id">
+          {{ client.name }} (NIP: {{ client.nip }})
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="selectedClient" class="p-4 bg-blue-50/50 border border-blue-100 rounded-lg text-sm flex gap-4 text-gray-700">
+      <p><strong class="font-semibold">Wybrany klient:</strong> {{ selectedClient.name }}</p>
+      <p><strong class="font-semibold">NIP:</strong> {{ selectedClient.nip }}</p>
+      <p *ngIf="selectedClient.email"><strong class="font-semibold">E-mail:</strong> {{ selectedClient.email }}</p>
+    </div>
+
+    <div class="space-y-2 pt-4 border-t">
+      <label class="block text-sm font-medium text-gray-700">Produkt / Usługa *</label>
+      <select
+        (change)="addProduct($event)"
+        class="w-full border border-gray-300 rounded-md px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+        <option value="" selected>+ Dodaj pozycję z katalogu...</option>
+        <option *ngFor="let product of products" [value]="product._id">
+          {{ product.name }} - {{ product.priceNetto }} zł netto (VAT: {{ product.vatRate }}%)
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="items.length > 0" class="border rounded-lg overflow-hidden mt-4 shadow-sm">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-gray-100 text-gray-600">
+        <tr>
+          <th class="p-3 font-medium">Nazwa</th>
+          <th class="p-3 text-center font-medium">Ilość</th>
+          <th class="p-3 text-right font-medium">Kwota Brutto</th>
+          <th class="p-3 w-10"></th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let item of items" class="bg-white hover:bg-gray-50 transition">
+          <td class="p-3">{{ item.name }}</td>
+          <td class="p-3 text-center">
+            <input type="number" min="1" [(ngModel)]="item.quantity" class="w-16 border rounded p-1 text-center focus:ring-2 focus:ring-blue-500 outline-none">
+          </td>
+          <td class="p-3 text-right font-semibold text-gray-800">{{ (item.gross * item.quantity).toFixed(2) }} zł</td>
+          <td class="p-3 text-center">
+            <button (click)="removeItem(item.itemId)" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-md transition">
+              Usuń
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between bg-white border p-6 rounded-xl shadow-sm">
+    <div>
+      <p class="text-sm text-gray-500 uppercase tracking-wide font-semibold">Suma do zapłaty</p>
+      <p class="text-3xl font-bold text-gray-900">{{ totalGross.toFixed(2) }} zł</p>
+    </div>
+
+    <button
+      (click)="handleSubmit()"
+      [disabled]="isSubmitting"
+      class="px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 transition shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2">
+      <span *ngIf="isSubmitting">Sprawdzanie...</span>
+      <span *ngIf="!isSubmitting">Zapisz i wystaw 🚀</span>
+    </button>
+  </div>
+
+</div>

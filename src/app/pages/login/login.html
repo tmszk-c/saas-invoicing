@@ -1,0 +1,69 @@
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center items-center gap-3">
+      <div class="w-12 h-12 bg-blue-900 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">
+        IH
+      </div>
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      Zaloguj się do InvoiceHub
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Lub
+      <a routerLink="/register" class="font-medium text-blue-600 hover:text-blue-500 transition">
+        załóż darmowe konto (testowy KSeF)
+      </a>
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-gray-100">
+      <form class="space-y-6" (ngSubmit)="onLogin()">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Adres e-mail</label>
+          <div class="mt-1">
+            <input
+              type="email"
+              required
+              [(ngModel)]="email"
+              name="email"
+              class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition"
+              placeholder="np. jan@kowalski.pl"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Hasło</label>
+          <div class="mt-1">
+            <input
+              type="password"
+              required
+              [(ngModel)]="password"
+              name="password"
+              class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition"
+              placeholder="••••••••"
+            >
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+            <label class="ml-2 block text-sm text-gray-900">Zapamiętaj mnie</label>
+          </div>
+          <div class="text-sm">
+            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Zapomniałeś hasła?</a>
+          </div>
+        </div>
+
+        <div>
+          <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+            Zaloguj się
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

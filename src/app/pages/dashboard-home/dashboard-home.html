@@ -1,0 +1,58 @@
+<div class="max-w-7xl mx-auto p-6 space-y-6">
+
+  <div class="bg-blue-900 rounded-2xl p-8 text-white shadow-lg flex flex-col sm:flex-row justify-between items-center gap-6">
+    <div>
+      <h1 class="text-3xl font-bold">Witaj ponownie, {{ userName }}! 👋</h1>
+      <p class="text-blue-200 mt-2">Oto podsumowanie Twojej firmy na dzień dzisiejszy.</p>
+    </div>
+    <button routerLink="/invoice/new" class="bg-white text-blue-900 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition shadow-md whitespace-nowrap">
+      + Wystaw nową fakturę
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl shadow-sm text-center font-medium">
+    ⚠️ {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading && !errorMessage" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div *ngFor="let i of [1,2,3,4]" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-32 flex flex-col justify-between animate-pulse">
+      <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+      <div class="h-8 bg-gray-200 rounded w-3/4 mt-2"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/3 mt-4"></div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+      <p class="text-gray-500 font-medium">Całkowity przychód</p>
+      <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ (stats.revenue || 0).toFixed(2) }} zł</h3>
+      <div class="mt-4 text-sm text-green-600 font-medium flex items-center gap-1">
+        <span>↑</span> Wszystkie wystawione
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+      <p class="text-gray-500 font-medium">Wystawione faktury</p>
+      <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ stats.invoices }}</h3>
+      <div class="mt-4 text-sm text-yellow-600 font-medium flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-yellow-500"></span> {{ stats.pending }} oczekuje KSeF
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition cursor-pointer" routerLink="/clients">
+      <p class="text-gray-500 font-medium">Baza klientów</p>
+      <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ stats.clients }}</h3>
+      <div class="mt-4 text-sm text-blue-600 font-medium">
+        Zarządzaj kontaktami →
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition cursor-pointer" routerLink="/products">
+      <p class="text-gray-500 font-medium">Katalog produktów</p>
+      <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ stats.products }}</h3>
+      <div class="mt-4 text-sm text-blue-600 font-medium">
+        Sprawdź cennik →
+      </div>
+    </div>
+  </div>
+</div>

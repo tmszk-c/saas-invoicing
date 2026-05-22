@@ -4,9 +4,10 @@ import { ClientDirectoryComponent } from './pages/client-directory/client-direct
 import { InvoiceCreatorComponent } from './pages/invoice-creator/invoice-creator';
 import { ProductCatalogComponent } from './pages/product-catalog/product-catalog';
 import { DocumentArchiveComponent } from './pages/document-archive/document-archive';
-
 import { LoginComponent } from './pages/login/login';
 import { RegisterComponent } from './pages/register/register';
+import { DashboardHomeComponent } from './pages/dashboard-home/dashboard-home';
+import { authGuard } from './guards/auth.guard'; // Importujemy strażnika
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -14,13 +15,15 @@ export const routes: Routes = [
   {
     path: '',
     component: DashboardLayoutComponent,
+    canActivate: [authGuard], // 🛡️ STRAŻNIK: Blokuje dostęp do całego panelu dzieci poniżej!
     children: [
+      { path: 'dashboard', component: DashboardHomeComponent },
       { path: 'clients', component: ClientDirectoryComponent },
       { path: 'invoice/new', component: InvoiceCreatorComponent },
       { path: 'products', component: ProductCatalogComponent },
       { path: 'archive', component: DocumentArchiveComponent },
 
-      { path: '', redirectTo: 'clients', pathMatch: 'full' }
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
   { path: '**', redirectTo: 'login' }

@@ -65,9 +65,13 @@ export class DocumentArchiveComponent implements OnInit {
     this.http.get<any[]>('http://localhost:3000/api/invoices')
       .subscribe({
         next: (data) => {
-          this.invoices = data;
+          // Mapujemy dane i zaokrąglamy totalGross dla każdej faktury
+          this.invoices = data.map(inv => ({
+            ...inv,
+            totalGross: Number(inv.totalGross).toFixed(2)
+          }));
           this.isLoading = false;
-          this.cdr.detectChanges(); // Wymuszenie narysowania tabeli faktur
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Błąd pobierania faktur z bazy:', err);
